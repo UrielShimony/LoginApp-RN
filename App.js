@@ -1,138 +1,145 @@
-import React from 'react';
-import { StyleSheet, Platform, Image, Text, View, ScrollView, Button } from 'react-native';
-import { AccessToken, LoginManager } from 'react-native-fbsdk';
+import React, {Component} from 'react';
+import {Image, StyleSheet, Text, View} from 'react-native';
+import {AccessToken, LoginButton, LoginManager} from 'react-native-fbsdk';
+import firebase from 'react-native-firebase'
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-import firebase from 'react-native-firebase';
+export default class App extends Component {
 
-const facebookLogin = async () => {
-  try {
-    const result = await LoginManager.logInWithReadPermissions(['public_profile', 'email']);
+  state = {
+    currentUser: undefined,
+  };
 
-    if (result.isCancelled) {
-      throw new Error('User cancelled request'); // Handle this however fits the flow of your app
+  componentDidMount() {
+  };
+
+  componentWillUnmount() {
+  };
+
+  onLoginWithFacebook = async (result, error) => {
+    try {
+      if (error.isCancelled) {
+        console.log('Result is canclled');
+        return
+      }
+      //TODO if google is logedin
+      //TODO setState for loading phase.
+
+      const data = await AccessToken.getCurrentAccessToken();
+
+      if (!data) {
+        throw "Something went wrong obtaining the users access token";
+      }
+
+      const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
+
+      const currentUser = await firebase.auth().signInAndRetrieveDataWithCredential(credential);
+      //login with Oauth success
+      this.setState({
+        currentUser: currentUser
+      });
+
+
+    } catch (err) {
+      LoginManager.logOut();
+      alert('Something went wrong, please login again');
+      console.log('erorin login- ', err);
     }
-
-    console.log(`Login success with permissions: ${result.grantedPermissions.toString()}`);
-
-    // get the access token
-    const data = await AccessToken.getCurrentAccessToken();
-
-    if (!data) {
-      throw new Error('Something went wrong obtaining the users access token'); // Handle this however fits the flow of your app
-    }
-
-    // create a new firebase credential with the token
-    const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
-
-    // login with credential
-    const currentUser = await firebase.auth().signInAndRetrieveDataWithCredential(credential);
-
-    console.info(JSON.stringify(currentUser.user.toJSON()))
-  } catch (e) {
-    console.error(e);
-  }
-}
+  };
+  onLogout = () => {
+    this.setState({
+      currentUser: undefined,
+    })
+  };
 
 
-export default class App extends React.Component {
-  constructor() {
-    super();
-    this.state = {};
-  }
-
-  async componentDidMount() {
-    // TODO: You: Do firebase things
-    // const { user } = await firebase.auth().signInAnonymously();
-    // console.warn('User -> ', user.toJSON());
-
-    // await firebase.analytics().logEvent('foo', { bar: '123'});
-  }
-
-// Calling the following function will open the FB login dialogue:
+  loginWithGoogle = () => {
+//Todo handle both login
+  };
 
   render() {
+    const {currentUser} = this.state;
     return (
-      <ScrollView>
-        <View style={styles.container}>
-          <Image source={require('./assets/ReactNativeFirebase.png')} style={[styles.logo]}/>
-          <Text style={styles.welcome}>
-            Welcome to {'\n'} React Native Firebase
-          </Text>
-          <Text style={styles.instructions}>
-            To get started, edit App.js
-          </Text>
-          {Platform.OS === 'ios' ? (
-            <Text style={styles.instructions}>
-              Press Cmd+R to reload,{'\n'}
-              Cmd+D or shake for dev menu
+      <View style={styles.container}>
+        {currentUser
+          ? // Show user info if already logged in
+          <View style={styles.content}>
+            <Text style={styles.header}>
+              Welcome {currentUser.user.displayName}!
             </Text>
-          ) : (
-            <Text style={styles.instructions}>
-              Double tap R on your keyboard to reload,{'\n'}
-              Cmd+M or shake for dev menu
-            </Text>
-          )}
-          <View style={styles.modules}>
-            <Text style={styles.modulesHeader}>The following Firebase modules are pre-installed:</Text>
-            {firebase.admob.nativeModuleExists && <Text style={styles.module}>admob()</Text>}
-            {firebase.analytics.nativeModuleExists && <Text style={styles.module}>analytics()</Text>}
-            {firebase.auth.nativeModuleExists && <Text style={styles.module}>auth()</Text>}
-            {firebase.config.nativeModuleExists && <Text style={styles.module}>config()</Text>}
-            {firebase.crashlytics.nativeModuleExists && <Text style={styles.module}>crashlytics()</Text>}
-            {firebase.database.nativeModuleExists && <Text style={styles.module}>database()</Text>}
-            {firebase.firestore.nativeModuleExists && <Text style={styles.module}>firestore()</Text>}
-            {firebase.functions.nativeModuleExists && <Text style={styles.module}>functions()</Text>}
-            {firebase.iid.nativeModuleExists && <Text style={styles.module}>iid()</Text>}
-            {firebase.invites.nativeModuleExists && <Text style={styles.module}>invites()</Text>}
-            {firebase.links.nativeModuleExists && <Text style={styles.module}>links()</Text>}
-            {firebase.messaging.nativeModuleExists && <Text style={styles.module}>messaging()</Text>}
-            {firebase.notifications.nativeModuleExists && <Text style={styles.module}>notifications()</Text>}
-            {firebase.perf.nativeModuleExists && <Text style={styles.module}>perf()</Text>}
-            {firebase.storage.nativeModuleExists && <Text style={styles.module}>storage()</Text>}
+            <View style={styles.avatar}>
+              <Image source={{uri: currentUser.user.photoURL + '?width=240&height=240'}} style={styles.avatarImage}/>
+            </View>
           </View>
-          <Button
-            title={'heyy'}
-            onPress={facebookLogin}/>
+          : // Show Please log in message if not
+          <View style={styles.content}>
+            <Text style={styles.header}>
+              Welcome Stranger!
+            </Text>
+            <View style={styles.avatar}>
+              <Icon name="user-circle" size={100} color="rgba(0,0,0,.09)"/>
+            </View>
+            <Text style={styles.text}>
+              Please log in !
+            </Text>
+          </View>
+        }
+        <View style={styles.buttons}>
+          <LoginButton
+            readPermissions={["email", "public_profile"]}
+            onLoginFinished={this.onLoginWithFacebook}
+            onLogoutFinished={this.onLogout}/>
+          <Icon.Button
+            name="google"
+            backgroundColor="#DD4B39"
+            onPress={this.loginWithGoogle}
+            {...iconStyles}
+          >
+            Or with Google
+          </Icon.Button>
         </View>
-      </ScrollView>
+      </View>
     );
+
   }
 }
+const iconStyles = {
+  borderRadius: 10,
+  iconStyle: {paddingVertical: 5},
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#FFF',
+  },
+  content: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
   },
-  logo: {
-    height: 120,
-    marginBottom: 16,
-    marginTop: 64,
-    padding: 10,
-    width: 135,
+  avatar: {
+    margin: 20,
   },
-  welcome: {
+  avatarImage: {
+    borderRadius: 75,
+    height: 150,
+    width: 150,
+  },
+  header: {
     fontSize: 20,
     textAlign: 'center',
     margin: 10,
   },
-  instructions: {
+  text: {
     textAlign: 'center',
-    color: '#333333',
+    color: '#333',
     marginBottom: 5,
   },
-  modules: {
+  buttons: {
+    justifyContent: 'space-between',
+    flexDirection: 'row',
     margin: 20,
+    marginBottom: 30,
   },
-  modulesHeader: {
-    fontSize: 16,
-    marginBottom: 8,
-  },
-  module: {
-    fontSize: 14,
-    marginTop: 4,
-    textAlign: 'center',
-  }
 });

@@ -155,6 +155,10 @@ android {
 }
 
 dependencies {
+  implementation(project(":react-native-google-signin")){
+    exclude group: "com.google.android.gms" // very important
+  }
+    compile project(':react-native-vector-icons')
     compile project(':react-native-fbsdk')
   implementation(project(':react-native-firebase')) {
     transitive = false
