@@ -25,4 +25,6 @@ target 'loginapp' do
   pod 'Fabric', '~> 1.7.13'
   pod 'Crashlytics', '~> 3.10.9'
 
+  pod 'react-native-fbsdk', :path => '../node_modules/react-native-fbsdk'
+
 end

@@ -1,7 +1,38 @@
 import React from 'react';
-import { StyleSheet, Platform, Image, Text, View, ScrollView } from 'react-native';
+import { StyleSheet, Platform, Image, Text, View, ScrollView, Button } from 'react-native';
+import { AccessToken, LoginManager } from 'react-native-fbsdk';
 
 import firebase from 'react-native-firebase';
+
+const facebookLogin = async () => {
+  try {
+    const result = await LoginManager.logInWithReadPermissions(['public_profile', 'email']);
+
+    if (result.isCancelled) {
+      throw new Error('User cancelled request'); // Handle this however fits the flow of your app
+    }
+
+    console.log(`Login success with permissions: ${result.grantedPermissions.toString()}`);
+
+    // get the access token
+    const data = await AccessToken.getCurrentAccessToken();
+
+    if (!data) {
+      throw new Error('Something went wrong obtaining the users access token'); // Handle this however fits the flow of your app
+    }
+
+    // create a new firebase credential with the token
+    const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
+
+    // login with credential
+    const currentUser = await firebase.auth().signInAndRetrieveDataWithCredential(credential);
+
+    console.info(JSON.stringify(currentUser.user.toJSON()))
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 
 export default class App extends React.Component {
   constructor() {
@@ -16,6 +47,8 @@ export default class App extends React.Component {
 
     // await firebase.analytics().logEvent('foo', { bar: '123'});
   }
+
+// Calling the following function will open the FB login dialogue:
 
   render() {
     return (
@@ -57,6 +90,9 @@ export default class App extends React.Component {
             {firebase.perf.nativeModuleExists && <Text style={styles.module}>perf()</Text>}
             {firebase.storage.nativeModuleExists && <Text style={styles.module}>storage()</Text>}
           </View>
+          <Button
+            title={'heyy'}
+            onPress={facebookLogin}/>
         </View>
       </ScrollView>
     );
