@@ -1,4 +1,12 @@
-### Getting Started
+This project initialized with react-native-fire-base starter and support all fire base features.
 
+The Android app support -
+FaceBook login implemented by react-native-fbsdk library.
+Google sign in implemented by react-native-google-signin library.
+
+
+The IOS app is not yet configured to the FreBase-Authentication. 
+
+### Getting Started
 Just write in the command line in the root directory while an android device is connected:
 `npm run android` 
