@@ -103,7 +103,16 @@ android {
       storeFile file('/Users/urielshimony/keys')
       storePassword '2911king'
     }
+    release {
+      if (project.hasProperty('MYAPP_RELEASE_STORE_FILE')) {
+        storeFile file(MYAPP_RELEASE_STORE_FILE)
+        storePassword MYAPP_RELEASE_STORE_PASSWORD
+        keyAlias MYAPP_RELEASE_KEY_ALIAS
+        keyPassword MYAPP_RELEASE_KEY_PASSWORD
+      }
+    }
   }
+
   lintOptions {
     disable 'GradleCompatible'
     disable 'InvalidPackage'
@@ -138,7 +147,9 @@ android {
     release {
       minifyEnabled enableProguardInReleaseBuilds
       proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+      signingConfig signingConfigs.release
     }
+
     debug {
       minifyEnabled false
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -192,6 +203,7 @@ dependencies {
   implementation 'com.android.support:appcompat-v7:23.0.1'
   implementation 'com.facebook.react:react-native:+'
   implementation "com.android.support:support-annotations:${rootProject.ext.supportLibVersion}"
+  implementation 'com.google.android.gms:play-services-auth:16.0.1'
   implementation fileTree(include: ['*.jar'], dir: 'libs')
 }
 

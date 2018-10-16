@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "1020803216979-8mf4fpu30iut0dvdspo0qnfvcceq2hj0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.uli.loginapp",
+            "certificate_hash": "bc48d9336e2b5f43b0a8439a0277c1cbddf5d33e"
+          }
+        },
+        {
           "client_id": "1020803216979-oodq4gkf1ajpagjto4leuf2ot7j09g6j.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -40,7 +48,7 @@
           "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "1020803216979-oodq4gkf1ajpagjto4leuf2ot7j09g6j.apps.googleusercontent.com",
+              "client_id": "1020803216979-0l6skdjjqv91fc3v5f43i7f41t1rtkhu.apps.googleusercontent.com",
               "client_type": 3
             },
             {
