@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import {Image, StyleSheet, Text, View} from 'react-native';
 import {AccessToken, LoginButton, LoginManager} from 'react-native-fbsdk';
+import { GoogleSignin, statusCodes } from 'react-native-google-signin';
+
 import firebase from 'react-native-firebase'
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -53,9 +55,35 @@ export default class App extends Component {
   };
 
 
-  loginWithGoogle = () => {
-//Todo handle both login
-  };
+  loginWithGoogle = async () => {
+      try {
+        console.log('phase 1');
+        // Add any configuration settings here:
+        await GoogleSignin.configure();
+        console.log('phase 2');
+
+        await GoogleSignin.hasPlayServices();
+        const data = await GoogleSignin.signIn();
+
+        console.log('phase 3');
+        // create a new firebase credential with the token
+        const credential = firebase.auth.GoogleAuthProvider.credential(data.idToken, data.accessToken)
+        // login with credential
+        const currentUser = await firebase.auth().signInAndRetrieveDataWithCredential(credential);
+
+        console.info(JSON.stringify(currentUser.user.toJSON()));
+      } catch (error) {
+        if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+          console.log(' user cancelled the login flow');
+        } else if (error.code === statusCodes.IN_PROGRESS) {
+         console.log(' // operation (f.e. sign in) is in progress already');
+        } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+          console.log(' play services not available or outdated');
+        } else {
+        console.log('elseeee', error , error.code);
+        }
+      }
+    };
 
   render() {
     const {currentUser} = this.state;
