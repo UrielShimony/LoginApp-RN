@@ -1,4 +1,4 @@
-This project initialized with react-native-fire-base starter and support all fire base features.
+This project cloned from react-native-fire-base-starter and support all fire base features.
 
 The Android app support -
 FaceBook login implemented by react-native-fbsdk library.
